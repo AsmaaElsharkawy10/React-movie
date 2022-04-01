@@ -12,11 +12,30 @@ function ListMovies() {
   // const location = useHistory() 
   const[movies,setMovies] = useState([])
   useEffect(()=>{
-   axiosInstance.get(`/popular?api_key=2447d1a3aaaefe278e2af1c1d23ecb3d`).then((result)=>setMovies(result.data.results)).catch((error)=>{console.log(error)})
+   axiosInstance.get(`/popular?api_key=2447d1a3aaaefe278e2af1c1d23ecb3d`)
+                .then((result)=>setMovies(result.data.results))
+                .catch((error)=>{console.log(error)})
  },[])
-console.log(movies)
- const favourites = useSelector((state) => state.favourites.favourites);
+ const [pageNum, setPageNum] = useState(1);
+    useEffect(() => {
+        axios.get(`https://api.themoviedb.org/3/movie/popular?page=${pageNum}&api_key=2447d1a3aaaefe278e2af1c1d23ecb3d`)
+              .then(response => { setMovies(response.data.results)})
+              .catch(error => console.log(error))
 
+    }, [pageNum])
+    
+    //check page number
+    function checkPageNumber ()
+    {
+      if(pageNum>1)
+      {
+          setPageNum(pageNum-1)
+      }else{
+        setPageNum(pageNum+1)
+      }
+    }
+
+ const favourites = useSelector((state) => state.favourites.favourites);
  const dispatch = useDispatch();
 
  //check favourite function
@@ -43,7 +62,7 @@ if(objFlag)
 }
 
   return (
-    <div className='container row mx-auto justify-content-center'>
+    <div className='container row mx-auto'>
        <ChangeLanguage/>
     <h2 className='text-center text-danger my-5'> Movies List</h2>
            { movies.map((movie)=>{
@@ -53,10 +72,15 @@ if(objFlag)
                    <h5 className="card-title">{movie.original_title}</h5>
                    <span id='star' className='fa-solid fa-star fa-xl my-4  pointer' style={{"color":"#ccc"}}  role="button" onClick={(e)=>{checkFavourite(movie,e);}}></span><br/>
                    <Link to={`/details/${movie.id}`} className="btn btn-danger  my-2">Details</Link>
-
                  </div>
                  </div>
    })}
+   <div className='d-flex  justify-content-center mt-2'>
+  <ul className="pagination">
+    <li className="page-item"><a className="page-link text-danger" style={{"cursor":"pointer"}} onClick={()=>checkPageNumber()}>Previous</a></li>
+    <li className="page-item"><a className="page-link" style={{"cursor":"pointer"}} onClick={()=>setPageNum(pageNum+1)}>Next</a></li>
+  </ul>
+</div>
 </div>
    )
    
