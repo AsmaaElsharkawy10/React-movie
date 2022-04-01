@@ -2,9 +2,10 @@ import React from 'react'
 import { useParams  } from 'react-router-dom'
 import { useEffect ,useState } from 'react'
 import axios from 'axios'
+import { axiosInstance } from './../Network/axiosConfg';
 function MovieDetails() {
   useEffect(()=>{
-    axios.get(`https://api.themoviedb.org/3/movie/${params.id}?api_key=2447d1a3aaaefe278e2af1c1d23ecb3d`).then((result)=>setDetails(result.data)).catch((error)=>{console.log(error)})
+    axiosInstance.get(`/${params.id}?api_key=2447d1a3aaaefe278e2af1c1d23ecb3d`).then((result)=>setDetails(result.data)).catch((error)=>{console.log(error)})
   },[])
 
   const[details ,setDetails] = useState({})

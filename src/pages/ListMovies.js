@@ -1,8 +1,10 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import {Link} from "react-router-dom"
-
-
+import ChangeLanguage from '../components/ChangeLanguage/ChangeLanguage';
+import { axiosInstance } from './../Network/axiosConfg';
+import { useSelector, useDispatch } from 'react-redux';
+import { addToFavourite ,removeFavourite } from './../store/actions/favourities';
 function ListMovies() {
   // const history = useHistory() if i want to redirect to a component
   // history.push("/")
@@ -10,27 +12,52 @@ function ListMovies() {
   // const location = useHistory() 
   const[movies,setMovies] = useState([])
   useEffect(()=>{
-   axios.get("https://api.themoviedb.org/3/movie/popular?api_key=2447d1a3aaaefe278e2af1c1d23ecb3d").then((result)=>setMovies(result.data.results)).catch((error)=>{console.log(error)})
+   axiosInstance.get(`/popular?api_key=2447d1a3aaaefe278e2af1c1d23ecb3d`).then((result)=>setMovies(result.data.results)).catch((error)=>{console.log(error)})
  },[])
-  console.log(movies)
+console.log(movies)
+ const favourites = useSelector((state) => state.favourites.favourites);
+
+ const dispatch = useDispatch();
+
+ //check favourite function
+ function checkFavourite(movie,e)
+ {
+  const objFlag = favourites.some(element=>{
+    if(element.id === movie.id)
+    {
+       return true;
+      
+    }else{
+      return false
+    }
+})
+ 
+if(objFlag)
+{
+  e.target.style.color="#ccc"
+  dispatch(removeFavourite(movie.id))
+}else{
+  e.target.style.color="yellow !important"
+  dispatch(addToFavourite(movie))
+}
+}
+
   return (
-    <div className='container'>
-    <h2 className='text-center text-danget my-3'> Movies List</h2>
-    <div className="row row-cols-md-3 g-2">
+    <div className='container row mx-auto justify-content-center'>
+       <ChangeLanguage/>
+    <h2 className='text-center text-danger my-5'> Movies List</h2>
            { movies.map((movie)=>{
-          return <div className="col" key={movie.id}>
-          <div className="card h-75" >
-                 <img src= {`https://image.tmdb.org/t/p/original/${movie.poster_path}`} className="card-img-top h-50" alt="..."/>
+          return <div className='col-md-3 my-1 text-center' key={movie.id}>
+                 <img src= {`https://image.tmdb.org/t/p/original/${movie.poster_path}`} style={{"height":"300px","width":"100%"}} className="card-img-top" alt="..."/>
                  <div className="card-body">
                    <h5 className="card-title">{movie.original_title}</h5>
-                   <p className="card-text">{movie.overview}</p>
-                   <Link to={`/details/${movie.id}`} class="btn btn-primary">Details</Link>
+                   <span id='star' className='fa-solid fa-star fa-xl my-4  pointer' style={{"color":"#ccc"}}  role="button" onClick={(e)=>{checkFavourite(movie,e);}}></span><br/>
+                   <Link to={`/details/${movie.id}`} className="btn btn-danger  my-2">Details</Link>
+
                  </div>
-               </div>
-               </div>
+                 </div>
    })}
 </div>
- </div>
    )
    
 }
